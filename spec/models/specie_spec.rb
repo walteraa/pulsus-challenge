@@ -1,5 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe Specie, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe '#name' do
+    it { is_expected.to validate_presence_of(:name) }
+  end
+
+  describe '#height_avg' do
+    it { is_expected.to validate_presence_of(:height_avg) }
+  end
 end
