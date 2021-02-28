@@ -1,5 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe Planet, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe '#name' do
+    it { is_expected.to validate_presence_of(:name) }
+  end
+
+  describe '#people' do
+    it { is_expected.to have_many(:people).dependent(:nullify) }
+  end
 end
