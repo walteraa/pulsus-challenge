@@ -16,4 +16,8 @@ RSpec.describe Person, type: :model do
   describe '#mass' do
     it { is_expected.to validate_presence_of(:mass) }
   end
+
+  describe '#planet' do
+    it { is_expected.to belong_to(:planet) }
+  end
 end
