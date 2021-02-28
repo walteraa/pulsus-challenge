@@ -1,0 +1,3 @@
+class Vehicle < Transport
+
+end
