@@ -30,6 +30,14 @@ RSpec.describe Person, type: :model do
     it { is_expected.to have_many(:transports).through(:drived_transports) }
   end
 
+  describe '#person_species' do
+    it { is_expected.to have_many(:person_species) }
+  end
+
+  describe '#species' do
+    it { is_expected.to have_many(:species).through(:person_species) }
+  end
+
   context 'virtual fields' do
     let(:starship) { create(:starship) }
     let(:vehicle) { create(:vehicle) }
