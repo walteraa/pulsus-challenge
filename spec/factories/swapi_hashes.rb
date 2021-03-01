@@ -9,7 +9,8 @@ FactoryBot.define do
           'mass' => Faker::Number.within(range: 1..300),
           'homeworld' => 'http://swapi.dev/api/planets/1/',
           'vehicles' => %w[http://swapi.dev/api/vehicles/14/ http://swapi.dev/api/vehicles/30/],
-          'starships' => %w[http://swapi.dev/api/starships/12/ http://swapi.dev/api/starships/22/]
+          'starships' => %w[http://swapi.dev/api/starships/12/ http://swapi.dev/api/starships/22/],
+          'species' => ['http://swapi.dev/api/species/1/']
         }
       end
     end

@@ -26,7 +26,9 @@ RSpec.describe CreatePersonJob, type: :job do
         ).exactly(
           swapi_people['vehicles'].count +
           swapi_people['starships'].count
-        ).times
+        ).times.and have_enqueued_job(
+          CreateSpecieAndAssignToPersonJob
+        ).exactly(swapi_people['species'].count)
     end
   end
 end
