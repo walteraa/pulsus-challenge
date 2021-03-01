@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Specie, type: :model do
+RSpec.describe Species, type: :model do
   describe '#name' do
     it { is_expected.to validate_presence_of(:name) }
   end

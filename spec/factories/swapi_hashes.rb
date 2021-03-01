@@ -16,4 +16,16 @@ FactoryBot.define do
 
     initialize_with { attributes }
   end
+
+  factory :swapi_planet, class:Hash do
+    name { Faker::Movies::StarWars.planet }
+
+    initialize_with { attributes }
+  end
+
+  factory :swapi_transport, class:Hash do
+    name { Faker::Movies::StarWars.vehicle }
+
+    initialize_with { attributes }
+  end
 end
