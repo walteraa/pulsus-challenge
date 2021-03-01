@@ -6,12 +6,15 @@ class CreatePersonJob < ApplicationJob
 
     planet_url = person_params['homeworld']
 
-
+    Rails.logger.info("[CreatePersonJob] - Trying to create #{person_params['name']} ... ")
     person = Person.find_or_create_by(name: person_params['name']) do |person|
-      person.birthday_year = person_params['birthday_year']
+      person.birthday_year = person_params['birth_year']
       person.height = person_params['height']
       person.mass = person_params['mass']
     end
+
+    Rails.logger.error("Failed to create person, errors => #{person.errors.full_messages}") unless person.valid?
+    return person.errors unless person.valid?
 
     CreatePlanetAndAssignToPersonJob.perform_later(planet_url, person.id)
 
