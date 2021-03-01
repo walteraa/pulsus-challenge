@@ -26,6 +26,11 @@ class CreatePersonJob < ApplicationJob
       CreateTransportAndAssignToPersonJob.perform_later(starship_url, 'Starship', person.id)
     end
 
+    person_params['species']&.each do |species_url|
+      CreateSpecieAndAssignToPersonJob.perform_later(species_url, person.id)
+    end
+
+
 
     true # Just for debuggin on Sidekiq
   end
