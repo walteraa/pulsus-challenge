@@ -1,4 +1,11 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
-  resources :people
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+
+  namespace :api do
+    namespace :v1 do
+      resources :people, only: [:index, :show]
+    end
+  end
+  mount Sidekiq::Web => "/sidekiq"
 end
