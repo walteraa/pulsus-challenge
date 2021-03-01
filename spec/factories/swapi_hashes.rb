@@ -28,4 +28,11 @@ FactoryBot.define do
 
     initialize_with { attributes }
   end
+
+  factory :swapi_species, class:Hash do
+    name { Faker::Movies::StarWars.specie }
+    average_height { Faker::Number.within(range: 10..300) }
+
+    initialize_with { attributes }
+  end
 end
