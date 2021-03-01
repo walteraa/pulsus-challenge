@@ -1,3 +1,2 @@
 class Starship < Transport
-
 end
