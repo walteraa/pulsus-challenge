@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe CreatePersonJob, type: :job do
@@ -6,7 +8,7 @@ RSpec.describe CreatePersonJob, type: :job do
   let(:person) do
     create(:person, name: swapi_people['name'],
                     height: swapi_people['height'],
-                    mass: swapi_people['mass'] )
+                    mass: swapi_people['mass'])
   end
 
   context 'when person_param is blank' do
@@ -15,16 +17,16 @@ RSpec.describe CreatePersonJob, type: :job do
 
   context 'when person_param is passed' do
     it 'calls the planet and transports creation job' do
-      allow(Person).to receive(:find_or_create_by).with({name: swapi_people['name'] }).and_return(person)
+      allow(Person).to receive(:find_or_create_by).with({ name: swapi_people['name'] }).and_return(person)
       expect { described_class.perform_now(swapi_people) }.to have_enqueued_job(CreatePlanetAndAssignToPersonJob)
-                                                                .with(swapi_people['homeworld'], person.id)
-                                                                .exactly(:once)
-                                                              .and have_enqueued_job(
-                                                                     CreateTransportAndAssignToPersonJob
-                                                                   ).exactly(
-                                                                       swapi_people['vehicles'].count +
-                                                                       swapi_people['starships'].count
-                                                                     ).times
+        .with(swapi_people['homeworld'], person.id)
+        .exactly(:once)
+        .and have_enqueued_job(
+          CreateTransportAndAssignToPersonJob
+        ).exactly(
+          swapi_people['vehicles'].count +
+          swapi_people['starships'].count
+        ).times
     end
   end
 end
