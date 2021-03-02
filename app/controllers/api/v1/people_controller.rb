@@ -1,40 +1,19 @@
 module Api
   module V1
     class PeopleController < ApplicationController
-      before_action :set_person, only: [:show]
+      include Scoppable
+      before_action :set_person, only: [:show, :image]
 
       # GET /people
       def index
-        @people = Person.all
+
+        @people = apply_scope(Person, scope_params.to_h)
+
+        paginate
       end
 
       # GET /people/1
       def show; end
-
-      # POST /people
-      def create
-        @person = Person.new(person_params)
-
-        if @person.save
-          render json: @person, status: :created, location: @person
-        else
-          render json: @person.errors, status: :unprocessable_entity
-        end
-      end
-
-      # PATCH/PUT /people/1
-      def update
-        if @person.update(person_params)
-          render json: @person
-        else
-          render json: @person.errors, status: :unprocessable_entity
-        end
-      end
-
-      # DELETE /people/1
-      def destroy
-        @person.destroy
-      end
 
       private
       # Use callbacks to share common setup or constraints between actions.
@@ -45,6 +24,19 @@ module Api
       # Only allow a list of trusted parameters through.
       def person_params
         params.require(:person).permit(:name, :birthday_year, :height, :mass)
+      end
+
+      def page
+        params[:page] || 1
+      end
+
+      def scope_params
+        params.permit(:by_planet, :by_starship, :by_vehicle)
+      end
+
+      # Workaround: only paginate if we do not have filter scopes
+      def paginate
+        @people = Person.paginate(page: page, per_page: 10) if scope_params.blank?
       end
     end
   end
