@@ -12,116 +12,55 @@ require 'rails_helper'
 # of tools you can use to make these specs even more expressive, but we're
 # sticking to rails and rspec-rails APIs to keep things simple and stable.
 
-RSpec.describe "/people", type: :request do
-  # This should return the minimal set of attributes required to create a valid
-  # Person. As you add validations to Person, be sure to
-  # adjust the attributes here as well.
-  let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
-  }
-
-  let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
-  }
-
-  # This should return the minimal set of values that should be in the headers
-  # in order to pass any filters (e.g. authentication) defined in
-  # PeopleController, or in your router and rack
-  # middleware. Be sure to keep this updated too.
-  let(:valid_headers) {
-    {}
-  }
+RSpec.describe "api/v1/people", type: :request do
+  let(:response_json) { JSON.parse(response.body)}
+  before do
+    @person = create(:person)
+    @starship = create(:starship)
+    DrivedTransport.create(person_id: @person.id, transport_id: @starship.id)
+  end
 
   describe "GET /index" do
     it "renders a successful response" do
-      Person.create! valid_attributes
-      get people_url, headers: valid_headers, as: :json
+
+      get api_v1_people_url, as: :json
       expect(response).to be_successful
+      expect(response_json.count).to eq(1)
+      expect(response_json.first['id']).to eq(@person.id)
+      expect(response_json.first['name']).to eq(@person.name)
     end
   end
 
   describe "GET /show" do
-    it "renders a successful response" do
-      person = Person.create! valid_attributes
-      get person_url(person), as: :json
-      expect(response).to be_successful
+    context 'with planet' do
+      it "renders a successful response" do
+        get api_v1_person_url(@person), as: :json
+        expect(response).to be_successful
+        expect(response_json['id']).to eq(@person.id)
+        expect(response_json['name']).to eq(@person.name)
+        expect(response_json['birth_year']).to eq(@person.birthday_year)
+        expect(response_json['height']).to eq(@person.height)
+        expect(response_json['mass']).to eq(@person.mass)
+        expect(response_json['species']).to be_empty
+        expect(response_json['vehicle']).to be_empty
+        expect(response_json['starships']).to_not be_empty
+        expect(response_json['starships'].first['id']).to eq(@starship.id)
+        expect(response_json['starships'].first['name']).to eq(@starship.name)
+        expect(response_json['planet']['id']).to eq(@person.planet.id)
+        expect(response_json['planet']['name']).to eq(@person.planet.name)
+      end
     end
+
+    context 'without planet' do
+      before { @person.update(planet_id: nil) }
+      it "renders a successful response" do
+        get api_v1_person_url(@person), as: :json
+        expect(response_json['planet']).to be_nil
+      end
+    end
+
+
   end
 
-  describe "POST /create" do
-    context "with valid parameters" do
-      it "creates a new Person" do
-        expect {
-          post people_url,
-               params: { person: valid_attributes }, headers: valid_headers, as: :json
-        }.to change(Person, :count).by(1)
-      end
 
-      it "renders a JSON response with the new person" do
-        post people_url,
-             params: { person: valid_attributes }, headers: valid_headers, as: :json
-        expect(response).to have_http_status(:created)
-        expect(response.content_type).to match(a_string_including("application/json"))
-      end
-    end
-
-    context "with invalid parameters" do
-      it "does not create a new Person" do
-        expect {
-          post people_url,
-               params: { person: invalid_attributes }, as: :json
-        }.to change(Person, :count).by(0)
-      end
-
-      it "renders a JSON response with errors for the new person" do
-        post people_url,
-             params: { person: invalid_attributes }, headers: valid_headers, as: :json
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.content_type).to eq("application/json")
-      end
-    end
-  end
-
-  describe "PATCH /update" do
-    context "with valid parameters" do
-      let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
-      }
-
-      it "updates the requested person" do
-        person = Person.create! valid_attributes
-        patch person_url(person),
-              params: { person: new_attributes }, headers: valid_headers, as: :json
-        person.reload
-        skip("Add assertions for updated state")
-      end
-
-      it "renders a JSON response with the person" do
-        person = Person.create! valid_attributes
-        patch person_url(person),
-              params: { person: new_attributes }, headers: valid_headers, as: :json
-        expect(response).to have_http_status(:ok)
-        expect(response.content_type).to match(a_string_including("application/json"))
-      end
-    end
-
-    context "with invalid parameters" do
-      it "renders a JSON response with errors for the person" do
-        person = Person.create! valid_attributes
-        patch person_url(person),
-              params: { person: invalid_attributes }, headers: valid_headers, as: :json
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.content_type).to eq("application/json")
-      end
-    end
-  end
-
-  describe "DELETE /destroy" do
-    it "destroys the requested person" do
-      person = Person.create! valid_attributes
-      expect {
-        delete person_url(person), headers: valid_headers, as: :json
-      }.to change(Person, :count).by(-1)
-    end
-  end
 end
