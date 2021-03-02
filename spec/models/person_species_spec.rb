@@ -1,5 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe PersonSpecies, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe '#person' do
+    it { is_expected.to belong_to(:person) }
+  end
+
+  describe '#species' do
+    it { is_expected.to belong_to(:species) }
+  end
 end
