@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'open-uri'
 
 class CreatePersonJob < ApplicationJob
   def perform(person_params)
@@ -17,7 +18,15 @@ class CreatePersonJob < ApplicationJob
     return person.errors unless person.valid?
 
     CreatePlanetAndAssignToPersonJob.perform_later(planet_url, person.id)
+    create_vehicles(person_params, person)
+    create_species(person_params, person)
 
+    true # Just for debuggin on Sidekiq
+  end
+
+  private
+
+  def create_vehicles(person_params, person)
     person_params['vehicles']&.each do |vehicle_url|
       CreateTransportAndAssignToPersonJob.perform_later(vehicle_url, 'Vehicle', person.id)
     end
@@ -25,13 +34,11 @@ class CreatePersonJob < ApplicationJob
     person_params['starships']&.each do |starship_url|
       CreateTransportAndAssignToPersonJob.perform_later(starship_url, 'Starship', person.id)
     end
+  end
 
+  def create_species(person_params, person)
     person_params['species']&.each do |species_url|
       CreateSpecieAndAssignToPersonJob.perform_later(species_url, person.id)
     end
-
-
-
-    true # Just for debuggin on Sidekiq
   end
 end
