@@ -16,19 +16,66 @@ RSpec.describe "api/v1/people", type: :request do
   let(:response_json) { JSON.parse(response.body)}
   before do
     @person = create(:person)
+    @person2 = create(:person)
     @starship = create(:starship)
+    @vehicle = create(:vehicle)
+
     DrivedTransport.create(person_id: @person.id, transport_id: @starship.id)
+    DrivedTransport.create(person_id: @person2.id, transport_id: @vehicle.id)
+
   end
 
   describe "GET /index" do
-    it "renders a successful response" do
+    context 'without filters' do
+      it "renders a successful response" do
 
-      get api_v1_people_url, as: :json
-      expect(response).to be_successful
-      expect(response_json.count).to eq(1)
-      expect(response_json.first['id']).to eq(@person.id)
-      expect(response_json.first['name']).to eq(@person.name)
+        get api_v1_people_url, as: :json
+        expect(response).to be_successful
+        expect(response_json.count).to eq(2)
+        expect(response_json.first['id']).to eq(@person.id)
+        expect(response_json.first['name']).to eq(@person.name)
+        expect(response_json.first['planet']['name']).to eq(@person.planet.name)
+      end
     end
+
+    context 'with filters' do
+      describe '.by_planet' do
+        it "renders a successful and correct response" do
+
+          get api_v1_people_url, params: { by_planet: @person.planet.name }
+
+          expect(response_json.count).to eq(1)
+          expect(response_json.first['id']).to eq(@person.id)
+          expect(response_json.first['name']).to eq(@person.name)
+          expect(response_json.first['planet']['name']).to eq(@person.planet.name)
+        end
+      end
+
+      describe '.by_starship' do
+        it "renders a successful and correct response" do
+          get api_v1_people_url, params: { by_starship: @starship.name }
+
+          expect(response_json.count).to eq(1)
+          expect(response_json.first['id']).to eq(@person.id)
+          expect(response_json.first['name']).to eq(@person.name)
+          expect(response_json.first['planet']['name']).to eq(@person.planet.name)
+        end
+      end
+
+      describe '.by_vehicle' do
+        it "renders a successful and correct response" do
+          get api_v1_people_url, params: { by_vehicle: @vehicle.name }
+
+          expect(response_json.count).to eq(1)
+          expect(response_json.first['id']).to eq(@person2.id)
+          expect(response_json.first['name']).to eq(@person2.name)
+          expect(response_json.first['planet']['name']).to eq(@person2.planet.name)
+        end
+      end
+
+    end
+
+
   end
 
   describe "GET /show" do
@@ -48,6 +95,7 @@ RSpec.describe "api/v1/people", type: :request do
         expect(response_json['starships'].first['name']).to eq(@starship.name)
         expect(response_json['planet']['id']).to eq(@person.planet.id)
         expect(response_json['planet']['name']).to eq(@person.planet.name)
+        expect(response_json['phrase']).to eq(@person.presentation_phrase)
       end
     end
 
