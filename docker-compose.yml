@@ -1,0 +1,57 @@
+
+version: '3.6'
+
+services:
+  app:
+    environment:
+      DATABASE_URL: postgres://postgres@db
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - gems
+      - db
+
+    build: .
+    command: bash startup_app.sh
+    tty: true
+    stdin_open: true
+    links:
+      - "db:db"
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/app
+      - gems:/gems
+  app_worker:
+    environment:
+      DATABASE_URL: postgres://postgres@db
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - db
+      - gems
+      - redis
+    build: .
+    command: bash startup_app_worker.sh
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/app
+      - gems:/gems
+  db:
+    image: postgres:9.6
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+    - 5432:5432
+    volumes:
+      - db:/var/lib/postgresql/data]
+  gems:
+    image: busybox
+    volumes:
+      - gems:/gems
+  redis:
+    image: redis:5.0.0
+    ports:
+      - 6379:6379
+volumes:
+  db:
+  gems:
